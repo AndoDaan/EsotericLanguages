@@ -1,6 +1,6 @@
 Interpreter for the joke esoteric language Verbose
 (Verbose createdd by: http://esolangs.org/wiki/User:Poolala)
-http://esolangs.org/wiki/Verbose#Hello.2C_world.21
+http://esolangs.org/wiki/Verbose
 
 written by: http://esolangs.org/wiki/User:AndoDaan
 
