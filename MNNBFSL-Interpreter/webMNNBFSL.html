@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<html>
+<title>MNNBFSL</title>
+<head></head>
+<body bgcolor="#8f8f8f">
+
+  <h1>MNNBFSL</h1>
+  MNNBFSL is an esoteric programming language with 2 stacks, 10 commands.
+  <br></br>
+  <table>
+    <tr>
+      <th align='left'><b>Code</b></th>
+      <th align='left'><b>Standard Input</b></th>
+    </tr>
+    <tr>
+      <td valign='top'><textarea id='userCodeArea' rows='12 ' cols='64'>[&lt;"+++++"++s </textarea><br><input type='button' onclick='run()' value='run code'/></br><br><div id='traceInfo'></div><div id='traceArea'></div></br><INPUT id='timeInterval' TYPE="RANGE" MIN="0" MAX="2000" STEP="25" VALUE="100"></td>
+      <td valign='top'><textarea id='stdInputArea' rows='1' cols='64'></textarea></br>
+        <b>Standard Output<b><br>
+          <textarea id='stdOutputArea' readonly rows='8' cols='64' bgcolor="#8f8f8f"></textarea></br>
+        <b>Standard Error<b><br>
+           <textarea id='stdErrorArea' readonly rows='16' cols='64'></textarea></br>
+
+      </td>
+      </tr>
+      
+  </table>
+  
+  
+  
+  <br></br>
+  
+ 
+
+<script type="text/javascript">
+   var ERASE = -1;
+
+   function setColors(txtObjectId, bg, fg) {
+      var txtObject = document.getElementById(txtObjectId);
+      txtObject.style.backgroundColor = bg;
+      txtObject.style.color = fg;
+   }
+
+   function getValueAs(txtObjectId, asType) {
+    var txtObject = document.getElementById(txtObjectId);
+    var txt = txtObject.value;
+  
+    if (asType == 'string'){
+      return txt;
+    } else if (asType == 'array'){
+      return txt.split('');
+    } else if (asType=='number') {
+      return parseInt(txt)
+    } else {
+      return NaN;
+    };
+  };
+
+  var addText = function (txtObjectId, txt) {
+    var txtObject =  document.getElementById(txtObjectId);
+    
+    if (txt==ERASE){
+       txtObject.value='';
+      } else {
+        txtObject.value += txt;
+      };
+      return true;
+    };
+
+   var stdOutput =document.getElementById('stdOutputArea');
+   stdOutput.style.backgroundColor="transparent";
+   stdOutput.rows=3;
+   var stdError =document.getElementById('stdErrorArea');
+   stdError.style.backgroundColor="transparent";
+   stdError.rows=3;
+
+
+    var endFlag = false;
+    var dStack=new Array("nil");
+    var rStack=new Array("nil");
+    
+   var inputPointer = 0;
+   var cycles = 0;
+   var maxcycles = 500;
+   var traceFlag=0;
+   addText('traceInfo', getValueAs('timeInterval','string'))
+
+  function init(){
+    var temp = document.getElementById("userCodeArea")
+   // console.log(temp.id)
+    arrUserCode = getValueAs(temp.id, 'array')
+    codeText = getValueAs(temp.id, 'string')
+    arrStdInput = getValueAs("stdInputArea", 'array')
+
+    addText("stdOutputArea", ERASE)
+    addText("stdErrorArea", ERASE)
+    
+    iPointer = 0
+
+    dStack=new Array()
+    rStack=new Array()
+    
+
+    cycles=0
+    maxcycles=3002222
+    iPointer=0
+    strOutput = ''
+    endFlag = false
+    
+    stdErrorRows=0 
+   
+    stdOutput='' 
+    setColors('traceArea','black','white')
+    traceFlag==false
+    tInterval=getValueAs('timeInterval','number')
+    if (tInterval>0){
+      traceFlag=1
+    }else{
+      traceFlag=0
+      setColors('traceArea','transparent','transparent')
+    };
+   };
+
+  function generateRandom(n){
+    var rcode =''
+    for (var i = n; i>=0;i--){
+      var r = Math.floor(Math.random() * 8) 
+      rcode += '++-><[]"'[r]
+    };
+    return rcode;
+  };
+
+  function run(){
+    init()
+    interpret()
+  }
+
+  function interpret(){
+    if (endFlag!=true){
+    //while(endFlag != true){
+      console.log(toString(traceFlag))
+    if (traceFlag==1) {
+     
+      var count = 0
+      var text=''
+      var clen=arrUserCode.length
+      //alert(codeText)
+      var e=document.getElementById('traceArea')
+      for (var ix=0; ix<clen; ix++) {
+        var re = arrUserCode[ix].replace("<","&lt;");
+        re = re.replace(">","&gt;");
+        if (count==iPointer){
+          text += '<span style="color: #FF0000; text-decoration: underline;">' + re + '</span>';
+        }else{
+          text += re
+        }
+        count++
+      };
+      var stackState = ''
+          stackState += dStack.toString() + ' / '
+          rStack.reverse()
+          stackState += rStack.toString()
+          rStack.reverse()
+       //   addText("stdErrorArea",stackState+'\r')
+      e.innerHTML ="<pre>" + text + '\n\n'+ iPointer.toString()+': '+stackState+"\n\nTrace Speed: "+getValueAs('timeInterval','string')+" cycles: "+cycles+"</pre>";
+      e.cols='64'
+     //e.style.backgroundColor='transparent'
+     //e.style.backgroundColor='black'
+     
+     // console.log(text)
+   };
+          var cCommand = arrUserCode[iPointer]
+      
+      if (cCommand=='+') {
+        if (dStack.length==0) {
+          addText("stdErrorArea","\rdStack underflow")
+         endFlag = true
+        } else {
+          var temp = dStack.pop()
+          temp+=1
+          var total = dStack.push(temp)
+        };
+      } else if (cCommand == '-'){
+        if (dStack.length==0) {
+          addText("stdErrorArea","\rrStack underflow")
+         endFlag = true
+        } else {
+        var temp = dStack.pop()
+        temp-=1
+        var total = dStack.push(temp)
+        };
+      } else if (cCommand == '>'){
+        if (dStack.length==0) {
+          addText("stdErrorArea","\rdStack underflow")
+         endFlag = true
+        } else {
+          var temp = dStack.pop()
+          var total = rStack.push(temp)
+        };
+      } else if (cCommand == '<'){
+        if (rStack.length==0) {
+          addText("stdErrorArea","\rrStack underflow")
+         endFlag = true
+        } else {
+          var temp = rStack.pop()
+          var total = dStack.push(temp)
+        };
+      } else if (cCommand == '"'){
+        if (dStack.length==0) {
+           addText("stdErrorArea","\rdStack underflow")
+         endFlag = true
+        } else {
+          var temp = dStack.pop()
+          var total = dStack.push(temp, temp)
+        };
+      } else if (cCommand == '['){
+        var total = rStack.push(iPointer)
+
+      } else if (cCommand == ']'){
+  
+        if (dStack.length==0) {
+           addText("stdErrorArea","\rdStack underflow")
+         endFlag = true
+        } else {
+         var temp = dStack.pop()
+          if (rStack.length==0) {
+             addText("stdErrorArea","\rrStack underflow")
+           endFlag = true
+          } else {
+           if (temp != 0) {
+             iPointer = rStack.pop()
+             iPointer -= 1
+           } else{
+            temp = rStack.pop()
+           };
+         };
+        };
+      } else if (cCommand == 's'){
+        var stackState = ''
+        stackState += dStack.toString() + ' / '
+        rStack.reverse()
+        stackState += rStack.toString()
+        rStack.reverse()
+        addText("stdErrorArea",stackState+'\r')
+        stdErrorRows++
+        //alert(stderror)
+      } else if (cCommand == ',') {
+        if (arrStdInput.length == 0){
+          var total = dStack.push(0)
+        } else {
+          var ch = arrStdInput.shift()
+          var temp = ch.charCodeAt(0)
+          var total = dStack.push(temp)
+          total = dStack.push(1)
+        };
+      } else if (cCommand == '.'){
+        if (dStack.length==0) {
+          addText("stdErrorArea", "dStack underflow")
+         endFlag = true
+        } else {
+          var st = document.getElementById('stdOutputArea')
+          var temp = String.fromCharCode(dStack.pop())
+          st.value += temp
+        };
+      } else {
+
+      };
+      //var tAlert = dStack.toString()
+      //alert(tAlert)
+      iPointer += 1
+      cycles += 1
+
+   ///   doTrace()
+      //sleep(1000);
+      if (iPointer >= arrUserCode.length) {endFlag = true};
+      if (cycles >= maxcycles) {endFlag  = true};
+     tInterval=getValueAs('timeInterval','number')
+      setTimeout(function(){interpret()},tInterval);
+    }else{
+    setColors('stdOutputArea', 'white', 'black')
+    setColors('stdErrorArea', 'white', 'black')
+  }
+}
+    
+</script>
+
+
+
+<!-- 
+<div></div>
+
+<textarea id='userCodeArea' rows='8' cols='64'/>[&lt;"s</textarea>
+<div></div>
+<textarea id='stdInputArea' rows='1' cols='64'/></textarea>
+<div></div>
+<input type='button' onclick='run()' value='run code' />
+<div></div>
+<textarea id='stdOutputArea' rows='8' cols='64'></textarea>
+<div></div>
+<textarea id='stdErrorArea' rows='16' cols='64'></textarea> -->
+
+<!-- <div id="debug" style="overflow: auto; background-color: black; color: white; font-family: monospace; font-size: 14pt;">
+</div> -->
+</body></html>
